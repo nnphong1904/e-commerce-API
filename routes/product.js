@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 
 
 const Product = require('../module/product.module');
@@ -17,6 +18,7 @@ router.get('/',  async (req, res, next) => {
 
 /* SEARCH products*/
 router.get('/search', async (req, res, next)=>{
+  console.log(req.query.name);
   Product.findOne({name: req.query.name})
           .then(product =>{
             if (product){
@@ -49,26 +51,38 @@ router.get('/:productId', async (req, res, next)=>{
 
 
 /*Add a product to store*/
-router.post('/',(req,res,next)=>{
+router.post('/',async (req,res,next)=>{
   const {name, price, availableSize, rating, retail, color, sellerId}= req.body;
-  // const newProduct = new Product(
-  //   {
-  //     name,
-  //     price: parseFloat(price), 
-  //     availableSize: JSON.parse(availableSize), 
-  //     rating: parseFloat(rating), 
-  //     retail: parseInt(retail), 
-  //     color: JSON.parse(color),
-  //     sellerId
-  //   }
-  // );
-  console.log(req.body.name);
-  //newProduct.save();
+  if (!name || !price || !availableSize || !rating || !retail || !color || !sellerId){
+    res.status(400).json({success: false, msg: 'add new product fail'});
+    return;
+  }
+  const newAvailableSize = availableSize.split(',').map(size => size.trim());
+  const newColor = color.split(',').map(color => color.trim());
+  let product = {
+    _id: mongoose.Types.ObjectId(),
+    name,
+    price: parseFloat(price), 
+    availableSize: newAvailableSize, 
+    rating: parseFloat(rating), 
+    retail: parseInt(retail), 
+    color: newColor, 
+    sellerId
+  };
+
+  const newProduct = new Product(product);
+  await newProduct.save();
   res.status(200).json({success: true, msg: 'add new product success'});
 }) //add a new item to store, must login as seller to add
 
-router.delete('/:productId',(req,res,next)=>{
-  res.send(`remove product has id is ${req.params.productId} from store`);
+router.delete('/:productName',async (req,res,next)=>{
+  await Product.findOneAndDelete({name: req.params.productName}, (result)=>{
+    if (result === null ){
+      res.status(404).json({success: false, msg: 'can not remove product'});
+      return;
+    }
+    res.status(200).json({success: false, msg: 'remove product success'});
+  })
 }) //remove a item from store, must login as seller to remove
 
 
