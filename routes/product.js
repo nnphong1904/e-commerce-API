@@ -76,13 +76,14 @@ router.post('/',async (req,res,next)=>{
 }) //add a new item to store, must login as seller to add
 
 router.delete('/:productName',async (req,res,next)=>{
-  await Product.findOneAndDelete({name: req.params.productName}, (result)=>{
-    if (result === null ){
+  const product = await Product.findOneAndDelete({name: req.params.productName}, (err, doc)=>{
+    if (doc === null ){
       res.status(404).json({success: false, msg: 'can not remove product'});
       return;
     }
     res.status(200).json({success: false, msg: 'remove product success'});
   })
+ 
 }) //remove a item from store, must login as seller to remove
 
 
