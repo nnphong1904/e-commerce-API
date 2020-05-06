@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
 
 //const indexRouter = require('./routes/index');
 const productsRouter = require('./routes/product');
-
+const commentRouter = require('./routes/comment');
 const app = express();
 
 mongoose.connect('mongodb://localhost/e-commerce-DSV', {useNewUrlParser: true, useUnifiedTopology: true})
@@ -30,8 +30,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// route handler
 app.use('/api/v1/products', productsRouter);
-
+app.use('/api/v1/comments', commentRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
