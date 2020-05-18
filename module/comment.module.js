@@ -14,9 +14,12 @@ const CommentSchema = new Schema({
     type: Number,
     default: 0.0
   },
-  writeBy:{
+  writtenBy:{
     type: Schema.Types.ObjectId,
     required: [true, 'who write this?']
+  },
+  content: {
+    type: String,
   },
   createAt:{
     type: Date,

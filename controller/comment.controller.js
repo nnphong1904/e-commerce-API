@@ -7,16 +7,22 @@ module.exports.getAllCommentOfProduct = async (req, res, next)=>{
 }
 
 module.exports.writeComment= async (req, res, next)=>{
-  const {productId, ratingPoint, writtenBy, createAt} = req.body;
+  const {productId, ratingPoint,content, writtenBy, createAt} = req.body;
   const date = `${new Date().getDate()}/${new Date().getMonth()+1}/${new Date().getUTCFullYear()}`;
-  console.log(date);
-  const newComment = {
+  const comment = {
     _id: mongoose.Types.ObjectId(), 
     productId,
     ratingPoint: parseFloat(ratingPoint),
     writtenBy,
-    createAt: Date.now()
+    createAt: date
   }
-  console.log(newComment);
+  try{
+    const newComment = new Comment(comment);
+    await newComment.save();
+    res.status(200).json({success: true, msg: 'write comment success'});
+  }
+  catch(err){
+    res.status(400).json({success: false, msg: err.message});
+  }
   res.end();
 }
